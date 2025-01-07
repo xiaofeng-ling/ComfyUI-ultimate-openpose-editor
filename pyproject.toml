@@ -1,0 +1,14 @@
+[project]
+name = "ComfyUI-ultimate-openpose-editor"
+description = "Improved version of [ComfyUI-openpose-editor](https://github.com/huchenlei/ComfyUI-openpose-editor) in ComfyUI, enable input and output with flexible choices. Much more convenient and easier to use."
+version = "1.0.0"
+license = "LICENSE"
+
+[project.urls]
+Repository = "https://github.com/westNeighbor/ComfyUI-ultimate-openpose-editor"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "westNeighbor"
+DisplayName = "ComfyUI-ultimate-openpose-editor"
+Icon = ""

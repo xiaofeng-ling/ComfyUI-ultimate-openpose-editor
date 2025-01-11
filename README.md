@@ -11,6 +11,8 @@
 This is an improved version of [ComfyUI-openpose-editor](https://github.com/huchenlei/ComfyUI-openpose-editor) 
 in ComfyUI, enable input and output with flexible choices. Much more convenient and easier to use. It integrates the render function which you also can intall it separately from my [ultimate-openpose-render](https://github.com/westNeighbor/ComfyUI-ultimate-openpose-render) repo or search in the Custom Nodes Manager
 
+If you like the project, please give me a star! ⭐
+
 ## Installation
 
 - Just install this repo through the Manager. Or you can manually install it, go to ComfyUI `/custom_nodes` directory
@@ -47,8 +49,12 @@ The node is very functional and rich features to fit all your needs.
 
     - It can output pose images, or POSE\_KEYPOINTS or the json poses. Be ware that the output priority is **POSE\_JSON > POSE\_KEYPOINT**
 
-    - It integrates the render options too, so you can use it as an render node too.
+    - It integrates the render options too, so you can use it as an render node too, or check my [ultimate-openpose-render](https://github.com/westNeighbor/ComfyUI-ultimate-openpose-render) node.
 
     <p align="center">
       <img src="assets/editor_example_3.jpg" />
     </p>
+
+
+## Credits
+- https://github.com/huchenlei/ComfyUI-openpose-editor

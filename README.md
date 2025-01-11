@@ -5,7 +5,7 @@
 </div>
 
 <p align="center">
-  <img src="assets/editor_example.png" />
+  <img src="assets/editor_example.jpg" />
 </p>
 
 This is an improved version of [ComfyUI-openpose-editor](https://github.com/huchenlei/ComfyUI-openpose-editor) 
@@ -50,5 +50,5 @@ The node is very functional and rich features to fit all your needs.
     - It integrates the render options too, so you can use it as an render node too.
 
     <p align="center">
-      <img src="assets/editor_example_3.png" />
+      <img src="assets/editor_example_3.jpg" />
     </p>

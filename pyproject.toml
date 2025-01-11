@@ -2,7 +2,7 @@
 name = "ComfyUI-ultimate-openpose-editor"
 description = "Improved version of [ComfyUI-openpose-editor](https://github.com/huchenlei/ComfyUI-openpose-editor) in ComfyUI, enable input and output with flexible choices. Much more convenient and easier to use."
 version = "1.0.0"
-license = "LICENSE"
+license = { file = "LICENSE"}
 
 [project.urls]
 Repository = "https://github.com/westNeighbor/ComfyUI-ultimate-openpose-editor"

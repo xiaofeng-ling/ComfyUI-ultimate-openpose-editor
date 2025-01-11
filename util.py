@@ -3,6 +3,7 @@ import json
 import numpy as np
 import matplotlib
 import cv2
+from comfy.utils import ProgressBar
 
 eps = 0.01
 
@@ -12,7 +13,11 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
         if pose_json.startswith('{'):
             pose_json = '[{}]'.format(pose_json)
         images = json.loads(pose_json)
+        pbar = ProgressBar(len(images))
         for image in images:
+            if 'people' not in image:
+                pbar.update(len(images))
+                return pose_imgs
             figures = image['people']
             H = image['canvas_height']
             W = image['canvas_width']
@@ -22,10 +27,14 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
             faces = []
             hands = []
             for figure in figures:
-                body = figure['pose_keypoints_2d']
-                face = figure['face_keypoints_2d']
-                lhand = figure['hand_left_keypoints_2d']
-                rhand = figure['hand_right_keypoints_2d']
+                if 'pose_keypoints_2d' in figure:
+                    body = figure['pose_keypoints_2d']
+                if 'face_keypoints_2d' in figure:
+                    face = figure['face_keypoints_2d']
+                if 'hand_left_keypoints_2d' in figure:
+                    lhand = figure['hand_left_keypoints_2d']
+                if 'hand_right_keypoints_2d' in figure:
+                    rhand = figure['hand_right_keypoints_2d']
                 if body:
                     for i in range(0,len(body),3):
                         candidate.append(body[i:i+2])
@@ -40,18 +49,26 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
                 if rhand:
                     hands.append([rhand[i:i+2] for i in range(0,len(rhand),3)])
 
-            candidate = np.array(candidate).astype(float)
-            subset = np.array(subset)
-            faces = np.array(faces).astype(float)
-            hands = np.array(hands).astype(float)
-            normalized = max(np.max(candidate[...,0]),np.max(candidate[...,1]),np.max(faces[...,0]),np.max(faces[...,1]),np.max(hands[...,0]),np.max(hands[...,1]))
-            if normalized>2.0:
-                candidate[...,0] /= float(W)
-                candidate[...,1] /= float(H)
-                faces[...,0] /= float(W)
-                faces[...,1] /= float(H)
-                hands[...,0] /= float(W)
-                hands[...,1] /= float(H)
+            normalized = 0.0
+            if candidate:
+                candidate = np.array(candidate).astype(float)
+                subset = np.array(subset)
+                normalized = max(np.max(candidate[...,0]),np.max(candidate[...,1]))
+                if normalized>2.0:
+                    candidate[...,0] /= float(W)
+                    candidate[...,1] /= float(H)
+            if faces:
+                faces = np.array(faces).astype(float)
+                normalized = max(np.max(faces[...,0]),np.max(faces[...,1]))
+                if normalized>2.0:
+                    faces[...,0] /= float(W)
+                    faces[...,1] /= float(H)
+            if hands:
+                hands = np.array(hands).astype(float)
+                normalized = max(np.max(hands[...,0]),np.max(hands[...,1]))
+                if normalized>2.0:
+                    hands[...,0] /= float(W)
+                    hands[...,1] /= float(H)
             bodies = dict(candidate=candidate, subset=subset)
             pose = dict(bodies=bodies, faces=faces, hands=hands)
             pose = dict(bodies=bodies if show_body else {'candidate':[], 'subset':[]}, faces=faces if show_face else [], hands=hands if show_hands else [])
@@ -61,6 +78,7 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
             H_scaled = int(H*(W_scaled*1.0/W))
             pose_img = draw_pose(pose, H_scaled, W_scaled, pose_marker_size, face_marker_size, hand_marker_size)
             pose_imgs.append(pose_img)
+            pbar.update(1)
 
     return pose_imgs
 
@@ -72,11 +90,14 @@ def draw_pose(pose, H, W, pose_marker_size, face_marker_size, hand_marker_size):
     subset = bodies['subset']
     canvas = np.zeros(shape=(H, W, 3), dtype=np.uint8)
 
-    canvas = draw_bodypose(canvas, candidate, subset, pose_marker_size)
+    if len(candidate) > 0:
+        canvas = draw_bodypose(canvas, candidate, subset, pose_marker_size)
 
-    canvas = draw_handpose(canvas, hands, hand_marker_size)
+    if len(hands) > 0:
+        canvas = draw_handpose(canvas, hands, hand_marker_size)
 
-    canvas = draw_facepose(canvas, faces, face_marker_size)
+    if len(faces) > 0:
+        canvas = draw_facepose(canvas, faces, face_marker_size)
 
     return canvas
 

@@ -87,7 +87,19 @@ class OpenposeEditorDialog extends ComfyDialog {
         } else {
             const textAreaElement = targetNode.widgets[7].element;
             this.element.style.display = "flex";
-            this.setCanvasJSONString(textAreaElement.value.replace(/'/g, '"'));
+            if (textAreaElement.value === "") {
+                let resolution_x = targetNode.widgets[3].value;
+                let resolution_y = Math.floor(768*(resolution_x*1.0/512));
+                if (resolution_x < 64){
+                    resolution_x = 512;
+                    resolution_y = 768;
+                }
+
+                let pose = `[{"people": [{"pose_keypoints_2d": [], "face_keypoints_2d": [], "hand_left_keypoints_2d": [], "hand_right_keypoints_2d": []}], "canvas_height": ${resolution_y}, "canvas_width": ${resolution_x}}]`;
+                this.setCanvasJSONString(pose);
+            } else {
+                this.setCanvasJSONString(textAreaElement.value.replace(/'/g, '"'));
+            }
         }
 
     }
@@ -95,8 +107,7 @@ class OpenposeEditorDialog extends ComfyDialog {
     createLayout() {
         this.iframeElement = $el("iframe", {
             // Change to for local dev
-            // src: "http://localhost:5173",
-            src: "https://huchenlei.github.io/sd-webui-openpose-editor?theme=dark",
+            src: "extensions/ComfyUI-ultimate-openpose-editor/ui/OpenposeEditor.html",
             style: {
                 width: "100%",
                 height: "100%",

@@ -1,7 +1,7 @@
 import json
 import torch
 import numpy as np
-from .util import draw_pose_json
+from .util import draw_pose_json, draw_pose
 
 OpenposeJSON = dict
 
@@ -55,16 +55,37 @@ class OpenposeEditorNode:
             if POSE_KEYPOINT is not None:
                 POSE_PASS = json.dumps(POSE_KEYPOINT,indent=4).replace("'",'"').replace('None','[]')
             pose_imgs = draw_pose_json(POSE_JSON, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size)
-            pose_imgs_np = np.array(pose_imgs).astype(np.float32) / 255
-            return {
-                "ui": {"POSE_JSON": [POSE_PASS]},
-                "result": (torch.from_numpy(pose_imgs_np), json.loads(POSE_JSON), POSE_JSON)
-            }
+            if pose_imgs:
+                pose_imgs_np = np.array(pose_imgs).astype(np.float32) / 255
+                return {
+                    "ui": {"POSE_JSON": [POSE_PASS]},
+                    "result": (torch.from_numpy(pose_imgs_np), json.loads(POSE_JSON), POSE_JSON)
+                }
         elif POSE_KEYPOINT is not None:
             POSE_JSON = json.dumps(POSE_KEYPOINT,indent=4).replace("'",'"').replace('None','[]')
             pose_imgs = draw_pose_json(POSE_JSON, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size)
-            pose_imgs_np = np.array(pose_imgs).astype(np.float32) / 255
-            return {
-                "ui": {"POSE_JSON": [POSE_JSON]},
-                "result": (torch.from_numpy(pose_imgs_np), json.loads(POSE_JSON), POSE_JSON)
-            }
+            if pose_imgs:
+                pose_imgs_np = np.array(pose_imgs).astype(np.float32) / 255
+                return {
+                    "ui": {"POSE_JSON": [POSE_JSON]},
+                    "result": (torch.from_numpy(pose_imgs_np), json.loads(POSE_JSON), POSE_JSON)
+                }
+
+        # otherwise output blank images
+        W=512
+        H=768
+        pose_draw = dict(bodies={'candidate':[], 'subset':[]}, faces=[], hands=[])
+        pose_out = dict(pose_keypoints_2d=[], face_keypoints_2d=[], hand_left_keypoints_2d=[], hand_right_keypoints_2d=[])
+        people=[dict(people=[pose_out], canvas_height=H, canvas_width=W)]
+
+        W_scaled = resolution_x
+        if resolution_x < 64:
+            W_scaled = W
+        H_scaled = int(H*(W_scaled*1.0/W))
+        pose_img = [draw_pose(pose_draw, H_scaled, W_scaled, pose_marker_size, face_marker_size, hand_marker_size)]
+        pose_img_np = np.array(pose_img).astype(np.float32) / 255
+
+        return {
+                "ui": {"POSE_JSON": people},
+                "result": (torch.from_numpy(pose_img_np), people, json.dumps(people))
+        }

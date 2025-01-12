@@ -1,6 +1,6 @@
 [project]
-name = "ComfyUI-ultimate-openpose-editor"
-description = "Improved version of [ComfyUI-openpose-editor](https://github.com/huchenlei/ComfyUI-openpose-editor) in ComfyUI, enable input and output with flexible choices. Much more convenient and easier to use."
+name = "ultimate-openpose-editor"
+description = "Enhanced features with flexible choice of inputs and outputs, fine control for pose plotting, freedom to composite poses and fast local pose editting."
 version = "1.0.1"
 license = { file = "LICENSE"}
 

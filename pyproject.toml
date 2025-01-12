@@ -1,7 +1,7 @@
 [project]
 name = "ultimate-openpose-editor"
 description = "Enhanced features with flexible choice of inputs and outputs, fine control for pose plotting, freedom to composite poses and fast local pose editting."
-version = "1.0.1"
+version = "1.0.0"
 license = { file = "LICENSE"}
 
 [project.urls]

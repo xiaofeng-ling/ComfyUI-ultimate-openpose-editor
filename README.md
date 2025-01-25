@@ -15,9 +15,7 @@ If you like the project, please give me a star! ⭐
 
 ## Installation
 
-*I used [**Registry**](https://registry.comfy.org/) to publish my nodes which was a big mess for naming and version control, so discard the method, just manually install it. If you installed this through Manager of certain versions, it probably doesn't work cause the naming problem, remove them and install again manually following the below steps.*
-
-- Do **NOT** install this node through the `Manager -> Custom Nodes Manger` search method. Just manually install it, go to ComfyUI `/custom_nodes` directory
+- Just install through the `Manager -> Custom Nodes Manger` search method. Or manually install it, go to ComfyUI `/custom_nodes` directory
     ```bash
     git clone https://github.com/westNeighbor/ComfyUI-ultimate-openpose-editor
     cd ./ComfyUI-ultimate-openpose-editor

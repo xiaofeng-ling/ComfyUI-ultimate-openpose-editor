@@ -102,8 +102,6 @@ class OpenposeEditorDialog extends ComfyDialog {
                 this.setCanvasJSONString(textAreaElement.value.replace(/'/g, '"'));
             }
         }
-
-
     }
 
     createLayout() {

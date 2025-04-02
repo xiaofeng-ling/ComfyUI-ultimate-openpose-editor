@@ -15,7 +15,7 @@ If you like the project, please give me a star! ⭐
 
 ## Installation
 
-- Just install through the `Manager -> Custom Nodes Manger` search method. Or manually install it, go to ComfyUI `/custom_nodes` directory
+- Manually install (**Recommend**), go to ComfyUI `/custom_nodes` directory
     ```bash
     git clone https://github.com/westNeighbor/ComfyUI-ultimate-openpose-editor
     cd ./ComfyUI-ultimate-openpose-editor
@@ -25,6 +25,17 @@ If you like the project, please give me a star! ⭐
     ```bash
     E:/ComfyUI_windows_portable/python_embeded/python.exe -m pip install -r requirements.txt
     ```
+- You can install through the `Manager -> Custom Nodes Manger` search method, but probably you will meet problem to open the editor cause the **Manager** change the folder name, check the folder name after installation and change the folder name in file **_./js/openpose_editor.js_** in line 111 to the actual folder name in your computer.
+
+    For example, if you have folder name **_westNeighbor_ComfyUI-ultimate-openpose-editor_** after installed, you need to change
+    ```bash
+    src: "extensions/ComfyUI-ultimate-openpose-editor/ui/OpenposeEditor.html",
+    ```
+    to
+    ```bash
+    src: "extensions/westNeighbor_ComfyUI-ultimate-openpose-editor/ui/OpenposeEditor.html",
+    ```
+
 - Restart ComfyUI
 
 ## Usage

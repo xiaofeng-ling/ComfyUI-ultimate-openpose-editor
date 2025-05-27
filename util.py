@@ -50,6 +50,7 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
 
                 lhand_pivot = [W * 0.25, H * 0.5]
                 rhand_pivot = [W * 0.75, H * 0.5]
+                face_pivot = [W * 0.5, H * 0.5]
 
                 if body:
                     index = 0
@@ -66,6 +67,7 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
 
                     lhand_pivot = candidate[7]
                     rhand_pivot = candidate[4]
+                    face_pivot = candidate[0]
 
                     if not subset[0]:
                         subset[0].extend([len(subset[0])+(i//3) if body[i+2]>0 else -1 for i in range(0,len(body),3)])
@@ -73,7 +75,12 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
                         subset.append([len(subset[0])*len(subset)+(i//3) if body[i+2]>0 else -1 for i in range(0,len(body),3)])
 
                 if face:
-                    faces.append([[face[i] + face_offset[0], face[i+1] + face_offset[1]] for i in range(0,len(face),3)])
+                    f = []
+                    for i in range(0,len(face),3):
+                        p = face[i:i+2]
+                        p = [p[0] + face_offset[0], p[1] + face_offset[1]]
+                        f.append(scale(p, head_scale, face_pivot))
+                    faces.append(f)
                 if lhand:
                     lh = []
                     for i in range(0, len(lhand), 3):

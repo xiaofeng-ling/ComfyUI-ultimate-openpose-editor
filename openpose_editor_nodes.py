@@ -33,6 +33,26 @@ class OpenposeEditorNode:
                     "min": 0,
                     "max": 100
                 }),
+                "hands_scale": ("FLOAT", {
+                    "default": 1.0,
+                    "min": 0.0,
+                    "max": 10.0
+                }),
+                "body_scale": ("FLOAT", {
+                    "default": 1.0,
+                    "min": 0.0,
+                    "max": 10.0
+                }),
+                "head_scale": ("FLOAT", {
+                    "default": 1.0,
+                    "min": 0.0,
+                    "max": 10.0
+                }),
+                "overall_scale": ("FLOAT", {
+                    "default": 1.0,
+                    "min": 0.0,
+                    "max": 10.0
+                }),
                 "POSE_JSON": ("STRING", {"multiline": True}),
                 "POSE_KEYPOINT": ("POSE_KEYPOINT",{"default": None}),
             },
@@ -44,7 +64,7 @@ class OpenposeEditorNode:
     FUNCTION = "load_pose"
     CATEGORY = "ultimate-openpose"
 
-    def load_pose(self, show_body, show_face, show_hands, resolution_x, pose_marker_size, face_marker_size, hand_marker_size, POSE_JSON: str, POSE_KEYPOINT=None) -> tuple[OpenposeJSON]:
+    def load_pose(self, show_body, show_face, show_hands, resolution_x, pose_marker_size, face_marker_size, hand_marker_size, hands_scale, body_scale, head_scale, overall_scale, POSE_JSON: str, POSE_KEYPOINT=None) -> tuple[OpenposeJSON]:
         '''
         priority output is: POSE_JSON > POSE_KEYPOINT
         priority edit is: POSE_KEYPOINT > POSE_JSON
@@ -54,7 +74,7 @@ class OpenposeEditorNode:
             POSE_PASS = POSE_JSON
             if POSE_KEYPOINT is not None:
                 POSE_PASS = json.dumps(POSE_KEYPOINT,indent=4).replace("'",'"').replace('None','[]')
-            pose_imgs = draw_pose_json(POSE_JSON, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size)
+            pose_imgs = draw_pose_json(POSE_JSON, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size, hands_scale, body_scale, head_scale, overall_scale)
             if pose_imgs:
                 pose_imgs_np = np.array(pose_imgs).astype(np.float32) / 255
                 return {
@@ -63,7 +83,7 @@ class OpenposeEditorNode:
                 }
         elif POSE_KEYPOINT is not None:
             POSE_JSON = json.dumps(POSE_KEYPOINT,indent=4).replace("'",'"').replace('None','[]')
-            pose_imgs = draw_pose_json(POSE_JSON, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size)
+            pose_imgs = draw_pose_json(POSE_JSON, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size, hands_scale, body_scale, head_scale, overall_scale)
             if pose_imgs:
                 pose_imgs_np = np.array(pose_imgs).astype(np.float32) / 255
                 return {

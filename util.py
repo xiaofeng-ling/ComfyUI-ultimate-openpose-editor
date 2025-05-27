@@ -7,7 +7,10 @@ from comfy.utils import ProgressBar
 
 eps = 0.01
 
-def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size):
+def scale(point, scale_factor, pivot):
+    return [(point[0] - pivot[0]) * scale_factor + pivot[0], (point[1] - pivot[1]) * scale_factor + pivot[1]]
+
+def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size, hands_scale, body_scale, head_scale, overall_scale):
     pose_imgs = []
     if pose_json:
         if pose_json.startswith('{'):
@@ -15,6 +18,7 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
         images = json.loads(pose_json)
         pbar = ProgressBar(len(images))
         for image in images:
+            print(f"Processing image with {len(image.get('people', []))} figures...")
             if 'people' not in image:
                 pbar.update(len(images))
                 return pose_imgs
@@ -26,6 +30,7 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
             subset = [[]]
             faces = []
             hands = []
+            pivot = [W * 0.5, H * 0.5]
             for figure in figures:
                 body = []
                 face = []
@@ -39,21 +44,58 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
                     lhand = figure['hand_left_keypoints_2d']
                 if 'hand_right_keypoints_2d' in figure:
                     rhand = figure['hand_right_keypoints_2d']
+                face_offset = [0, 0]
+                lhand_offset = [0, 0]
+                rhand_offset = [0, 0]
+
+                lhand_pivot = [W * 0.25, H * 0.5]
+                rhand_pivot = [W * 0.75, H * 0.5]
+
                 if body:
+                    index = 0
                     for i in range(0,len(body),3):
-                        candidate.append(body[i:i+2])
+                        p = body[i:i+2]
+                        point = [p[0]*body_scale + W * (1-body_scale) * 0.5, p[1]*body_scale + H * (1-body_scale) * 0.5]
+                        candidate.append(point)
+                        index += 1
+                    face_offset = [candidate[0][0] - body[0], candidate[0][1] - body[1]]
+                    face_offset = [a*0.8 for a in face_offset]
+
+                    lhand_offset = [candidate[7][0] - body[21], candidate[7][1] - body[22]]
+                    rhand_offset = [candidate[4][0] - body[12], candidate[4][1] - body[13]]
+
+                    lhand_pivot = candidate[7]
+                    rhand_pivot = candidate[4]
+
                     if not subset[0]:
                         subset[0].extend([len(subset[0])+(i//3) if body[i+2]>0 else -1 for i in range(0,len(body),3)])
                     else:
                         subset.append([len(subset[0])*len(subset)+(i//3) if body[i+2]>0 else -1 for i in range(0,len(body),3)])
-                if face:
-                    faces.append([face[i:i+2] for i in range(0,len(face),3)])
-                if lhand:
-                    hands.append([lhand[i:i+2] for i in range(0,len(lhand),3)])
-                if rhand:
-                    hands.append([rhand[i:i+2] for i in range(0,len(rhand),3)])
 
-            normalized = 0.0
+                if face:
+                    faces.append([[face[i] + face_offset[0], face[i+1] + face_offset[1]] for i in range(0,len(face),3)])
+                if lhand:
+                    lh = []
+                    for i in range(0, len(lhand), 3):
+                        p = lhand[i:i+2]
+                        p = [p[0] + lhand_offset[0], p[1] + lhand_offset[1]]
+                        lh.append(scale(p, hands_scale, lhand_pivot))
+                    hands.append(lh)
+                if rhand:
+                    rh = []
+                    for i in range(0, len(rhand), 3):
+                        p = rhand[i:i+2]
+                        p = [p[0] + rhand_offset[0], p[1] + rhand_offset[1]]
+                        rh.append(scale(p, hands_scale, rhand_pivot))
+                    hands.append(rh)
+
+            if hands:
+                hands = [[scale(lm, overall_scale, pivot) for lm in hand] for hand in hands]
+            if faces:
+                faces = [[scale(lm, overall_scale, pivot) for lm in face] for face in faces]
+            if candidate:
+                candidate = [scale(lm, overall_scale, pivot) for lm in candidate]
+
             if candidate:
                 candidate = np.array(candidate).astype(float)
                 subset = np.array(subset)

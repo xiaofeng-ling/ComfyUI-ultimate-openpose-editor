@@ -118,7 +118,7 @@ class OpenposeEditorNode:
                     "max": 10.0,
                     "step": 0.05
                 }),
-                "list_mismatch_behavior": (["truncate", "loop", "repeat"], {"default": "loop"}),
+                "list_mismatch_behavior": (["truncate", "loop", "repeat"], {"default": "loop", "tooltip": "Truncate: Truncate the list to the shortest length. Loop: Loop the list to the longest length. Repeat: Repeat the list to the longest length."}),
                 "POSE_JSON": ("STRING", {"multiline": True}),
                 "POSE_KEYPOINT": ("POSE_KEYPOINT",{"default": None}),
             },

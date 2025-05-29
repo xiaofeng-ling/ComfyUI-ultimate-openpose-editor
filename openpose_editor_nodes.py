@@ -36,22 +36,26 @@ class OpenposeEditorNode:
                 "hands_scale": ("FLOAT", {
                     "default": 1.0,
                     "min": 0.0,
-                    "max": 10.0
+                    "max": 10.0,
+                    "step": 0.05
                 }),
                 "body_scale": ("FLOAT", {
                     "default": 1.0,
                     "min": 0.0,
-                    "max": 10.0
+                    "max": 10.0,
+                    "step": 0.05
                 }),
                 "head_scale": ("FLOAT", {
                     "default": 1.0,
                     "min": 0.0,
-                    "max": 10.0
+                    "max": 10.0,
+                    "step": 0.05
                 }),
                 "overall_scale": ("FLOAT", {
                     "default": 1.0,
                     "min": 0.0,
-                    "max": 10.0
+                    "max": 10.0,
+                    "step": 0.05
                 }),
                 "POSE_JSON": ("STRING", {"multiline": True}),
                 "POSE_KEYPOINT": ("POSE_KEYPOINT",{"default": None}),

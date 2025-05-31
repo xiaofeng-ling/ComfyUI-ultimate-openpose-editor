@@ -50,7 +50,7 @@ class OpenposeEditorDialog extends ComfyDialog {
             const message = event.data;
             if (message.modalId === 0) {
                 const targetNode = ComfyApp.clipspace_return_node;
-                const textAreaElement = targetNode.widgets[7].element;
+                const textAreaElement = targetNode.widgets[12].element;
                 textAreaElement.value = JSON.stringify(event.data.poses);
 		ComfyApp.onClipspaceEditorClosed();
                 this.close();
@@ -82,11 +82,11 @@ class OpenposeEditorDialog extends ComfyDialog {
 
         const targetNode = ComfyApp.clipspace_return_node;
         if (targetNode.inputs?.[0].link || targetNode.inputs?.[targetNode.inputs.length-1].widget){
-            const textAreaElement = targetNode.widgets[8].element;
+            const textAreaElement = targetNode.widgets[13].element;
             this.element.style.display = "flex";
             this.setCanvasJSONString(textAreaElement.value.replace(/'/g, '"'));
         } else {
-            const textAreaElement = targetNode.widgets[7].element;
+            const textAreaElement = targetNode.widgets[12].element;
             this.element.style.display = "flex";
             if (textAreaElement.value === "") {
                 let resolution_x = targetNode.widgets[3].value;

@@ -7,8 +7,12 @@ from comfy.utils import ProgressBar
 
 eps = 0.01
 
-def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size):
+def scale(point, scale_factor, pivot):
+    return [(point[0] - pivot[0]) * scale_factor + pivot[0], (point[1] - pivot[1]) * scale_factor + pivot[1]]
+
+def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size, hands_scale, body_scale, head_scale, overall_scale):
     pose_imgs = []
+    
     if pose_json:
         if pose_json.startswith('{'):
             pose_json = '[{}]'.format(pose_json)
@@ -21,12 +25,15 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
             figures = image['people']
             H = image['canvas_height']
             W = image['canvas_width']
+            
             bodies = []
             candidate = []
             subset = [[]]
             faces = []
             hands = []
-            for figure in figures:
+            pivot = [W * 0.5, H * 0.5]
+            
+            for figure_idx, figure in enumerate(figures):
                 body = []
                 face = []
                 lhand = []
@@ -39,47 +46,136 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
                     lhand = figure['hand_left_keypoints_2d']
                 if 'hand_right_keypoints_2d' in figure:
                     rhand = figure['hand_right_keypoints_2d']
-                if body:
-                    for i in range(0,len(body),3):
-                        candidate.append(body[i:i+2])
-                    if not subset[0]:
-                        subset[0].extend([len(subset[0])+(i//3) if body[i+2]>0 else -1 for i in range(0,len(body),3)])
-                    else:
-                        subset.append([len(subset[0])*len(subset)+(i//3) if body[i+2]>0 else -1 for i in range(0,len(body),3)])
-                if face:
-                    faces.append([face[i:i+2] for i in range(0,len(face),3)])
-                if lhand:
-                    hands.append([lhand[i:i+2] for i in range(0,len(lhand),3)])
-                if rhand:
-                    hands.append([rhand[i:i+2] for i in range(0,len(rhand),3)])
+                    
+                face_offset = [0, 0]
+                lhand_offset = [0, 0]
+                rhand_offset = [0, 0]
 
-            normalized = 0.0
+                lhand_pivot = [W * 0.25, H * 0.5]
+                rhand_pivot = [W * 0.75, H * 0.5]
+                face_pivot = [W * 0.5, H * 0.5]
+
+                if body:
+                    candidate_start_idx = len(candidate)
+                    
+                    index = 0
+                    for i in range(0,len(body),3):
+                        p = body[i:i+2]
+                        confidence = body[i+2]
+                        
+                        if body_scale != 1.0:
+                            point = [(p[0] - 0.5) * body_scale + 0.5, (p[1] - 0.5) * body_scale + 0.5]
+                        else:
+                            point = p[:]
+                            
+                        candidate.append(point)
+                        index += 1
+                    
+                    figure_head_idx = candidate_start_idx
+                    if figure_head_idx < len(candidate):
+                        face_offset = [candidate[figure_head_idx][0] - body[0], candidate[figure_head_idx][1] - body[1]]
+                        face_offset = [a*0.8 for a in face_offset]
+                    else:
+                        face_offset = [0, 0]
+
+                    wrist_left_idx = candidate_start_idx + 7
+                    wrist_right_idx = candidate_start_idx + 4
+                    
+                    if wrist_left_idx < len(candidate) and len(body) > 22:
+                        lhand_offset = [candidate[wrist_left_idx][0] - body[21], candidate[wrist_left_idx][1] - body[22]]
+                        lhand_pivot = candidate[wrist_left_idx]
+                    else:
+                        lhand_offset = [0, 0]
+                        
+                    if wrist_right_idx < len(candidate) and len(body) > 13:
+                        rhand_offset = [candidate[wrist_right_idx][0] - body[12], candidate[wrist_right_idx][1] - body[13]]
+                        rhand_pivot = candidate[wrist_right_idx]
+                    else:
+                        rhand_offset = [0, 0]
+
+                    if figure_head_idx < len(candidate):
+                        face_pivot = candidate[figure_head_idx]
+
+                    if not subset[0]:
+                        subset[0].extend([candidate_start_idx+(i//3) if body[i+2]>0 else -1 for i in range(0,len(body),3)])
+                    else:
+                        new_subset = [candidate_start_idx+(i//3) if body[i+2]>0 else -1 for i in range(0,len(body),3)]
+                        subset.append(new_subset)
+
+                if face:
+                    f = []
+                    for i in range(0,len(face),3):
+                        p = face[i:i+2]
+                        confidence = face[i+2]
+                        p_offset = [p[0] + face_offset[0], p[1] + face_offset[1]]
+                        p_scaled = scale(p_offset, head_scale, face_pivot)
+                        f.append(p_scaled)
+                    faces.append(f)
+                    
+                if lhand:
+                    lh = []
+                    for i in range(0, len(lhand), 3):
+                        p = lhand[i:i+2]
+                        p_offset = [p[0] + lhand_offset[0], p[1] + lhand_offset[1]]
+                        p_scaled = scale(p_offset, hands_scale, lhand_pivot)
+                        lh.append(p_scaled)
+                    hands.append(lh)
+                    
+                if rhand:
+                    rh = []
+                    for i in range(0, len(rhand), 3):
+                        p = rhand[i:i+2]
+                        p_offset = [p[0] + rhand_offset[0], p[1] + rhand_offset[1]]
+                        p_scaled = scale(p_offset, hands_scale, rhand_pivot)
+                        rh.append(p_scaled)
+                    hands.append(rh)
+
+            normalized_pivot = [0.5, 0.5]
+            
+            if hands:
+                hands = [[scale(lm, overall_scale, normalized_pivot) for lm in hand] for hand in hands]
+            if faces:
+                faces = [[scale(lm, overall_scale, normalized_pivot) for lm in face] for face in faces]
+            if candidate:
+                candidate = [scale(lm, overall_scale, normalized_pivot) for lm in candidate]
+
             if candidate:
                 candidate = np.array(candidate).astype(float)
                 subset = np.array(subset)
-                normalized = max(np.max(candidate[...,0]),np.max(candidate[...,1]))
-                if normalized>2.0:
-                    candidate[...,0] /= float(W)
-                    candidate[...,1] /= float(H)
+                max_x = np.max(candidate[...,0]) if len(candidate) > 0 else 0
+                max_y = np.max(candidate[...,1]) if len(candidate) > 0 else 0
+                normalized = max(max_x, max_y)
+                if normalized > 2.0:
+                    candidate[...,0] = np.clip(candidate[...,0] / float(W), 0, 1)
+                    candidate[...,1] = np.clip(candidate[...,1] / float(H), 0, 1)
+                    
             if faces:
                 faces = np.array(faces).astype(float)
-                normalized = max(np.max(faces[...,0]),np.max(faces[...,1]))
-                if normalized>2.0:
-                    faces[...,0] /= float(W)
-                    faces[...,1] /= float(H)
+                max_x = np.max(faces[...,0]) if len(faces) > 0 else 0
+                max_y = np.max(faces[...,1]) if len(faces) > 0 else 0
+                normalized = max(max_x, max_y)
+                if normalized > 2.0:
+                    faces[...,0] = np.clip(faces[...,0] / float(W), 0, 1)
+                    faces[...,1] = np.clip(faces[...,1] / float(H), 0, 1)
+                    
             if hands:
                 hands = np.array(hands).astype(float)
-                normalized = max(np.max(hands[...,0]),np.max(hands[...,1]))
-                if normalized>2.0:
-                    hands[...,0] /= float(W)
-                    hands[...,1] /= float(H)
+                max_x = np.max(hands[...,0]) if len(hands) > 0 else 0
+                max_y = np.max(hands[...,1]) if len(hands) > 0 else 0
+                normalized = max(max_x, max_y)
+                if normalized > 2.0:
+                    hands[...,0] = np.clip(hands[...,0] / float(W), 0, 1)
+                    hands[...,1] = np.clip(hands[...,1] / float(H), 0, 1)
+                    
             bodies = dict(candidate=candidate, subset=subset)
             pose = dict(bodies=bodies, faces=faces, hands=hands)
             pose = dict(bodies=bodies if show_body else {'candidate':[], 'subset':[]}, faces=faces if show_face else [], hands=hands if show_hands else [])
+            
             W_scaled = resolution_x
             if resolution_x < 64:
                 W_scaled = W
             H_scaled = int(H*(W_scaled*1.0/W))
+            
             pose_img = draw_pose(pose, H_scaled, W_scaled, pose_marker_size, face_marker_size, hand_marker_size)
             pose_imgs.append(pose_img)
             pbar.update(1)

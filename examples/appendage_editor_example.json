@@ -1,0 +1,893 @@
+{
+  "id": "b7f4ff12-a2ac-431b-8ea5-f6f2e7e1b982",
+  "revision": 0,
+  "last_node_id": 567,
+  "last_link_id": 1093,
+  "nodes": [
+    {
+      "id": 556,
+      "type": "AppendageEditorNode",
+      "pos": [
+        53.78276062011719,
+        1469.3089599609375
+      ],
+      "size": [
+        456,
+        226
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "link": 1078
+        }
+      ],
+      "outputs": [
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "links": [
+            1080
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "westNeighbor_ComfyUI-ultimate-openpose-editor",
+        "ver": "ea50244cd95102872209f60087ed49c80e750ff8",
+        "widget_ue_connectable": {},
+        "Node name for S&R": "AppendageEditorNode"
+      },
+      "widgets_values": [
+        "shoulders",
+        0.6300000000000001,
+        0,
+        0,
+        0,
+        false,
+        -1,
+        "loop"
+      ]
+    },
+    {
+      "id": 557,
+      "type": "AppendageEditorNode",
+      "pos": [
+        636.4037475585938,
+        1472.977783203125
+      ],
+      "size": [
+        456,
+        226
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "link": 1080
+        }
+      ],
+      "outputs": [
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "links": [
+            1082
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "westNeighbor_ComfyUI-ultimate-openpose-editor",
+        "ver": "ea50244cd95102872209f60087ed49c80e750ff8",
+        "widget_ue_connectable": {},
+        "Node name for S&R": "AppendageEditorNode"
+      },
+      "widgets_values": [
+        "torso",
+        0.6600000000000001,
+        0,
+        0,
+        0,
+        false,
+        -1,
+        "loop"
+      ]
+    },
+    {
+      "id": 558,
+      "type": "AppendageEditorNode",
+      "pos": [
+        1213.678466796875,
+        1469.1339111328125
+      ],
+      "size": [
+        456,
+        226
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "link": 1082
+        }
+      ],
+      "outputs": [
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "links": [
+            1084
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "westNeighbor_ComfyUI-ultimate-openpose-editor",
+        "ver": "ea50244cd95102872209f60087ed49c80e750ff8",
+        "widget_ue_connectable": {},
+        "Node name for S&R": "AppendageEditorNode"
+      },
+      "widgets_values": [
+        "left_lower_leg",
+        1,
+        0.10000000000000002,
+        0,
+        11.818115234375,
+        false,
+        -1,
+        "loop"
+      ]
+    },
+    {
+      "id": 521,
+      "type": "PoseRendererNode",
+      "pos": [
+        1762.187744140625,
+        1466.8565673828125
+      ],
+      "size": [
+        315,
+        202
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "link": 1084
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1019
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "westNeighbor_ComfyUI-ultimate-openpose-editor",
+        "ver": "4cfb549344eb2c6f893b364da88d690c5414d3a2",
+        "Node name for S&R": "PoseRendererNode",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        true,
+        true,
+        true,
+        -1,
+        4,
+        3,
+        2
+      ]
+    },
+    {
+      "id": 524,
+      "type": "PreviewImage",
+      "pos": [
+        2159.125,
+        1455.14111328125
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 1019
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.30",
+        "Node name for S&R": "PreviewImage",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 518,
+      "type": "LoadImage",
+      "pos": [
+        -1169.2633056640625,
+        1442.111328125
+      ],
+      "size": [
+        342.5999755859375,
+        314
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1014
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.30",
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "tpose.png",
+        "image"
+      ]
+    },
+    {
+      "id": 516,
+      "type": "OpenposePreprocessor",
+      "pos": [
+        -686.077392578125,
+        1477.248779296875
+      ],
+      "size": [
+        481.1999816894531,
+        174
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 1014
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "links": [
+            1078,
+            1086
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_controlnet_aux",
+        "ver": "1.0.7",
+        "Node name for S&R": "OpenposePreprocessor",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "enable",
+        "enable",
+        "enable",
+        512,
+        "disable"
+      ]
+    },
+    {
+      "id": 564,
+      "type": "FeatureToFlexFloatParam",
+      "pos": [
+        20,
+        2690
+      ],
+      "size": [
+        343.35400390625,
+        106
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "feature",
+          "type": "FEATURE",
+          "link": 1088
+        }
+      ],
+      "outputs": [
+        {
+          "name": "PARAMETER",
+          "type": "FLOAT",
+          "links": [
+            1090
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_ryanontheinside",
+        "ver": "5907a3591a2feb5531d533194b6c26ead84ce835",
+        "widget_ue_connectable": {},
+        "Node name for S&R": "FeatureToFlexFloatParam"
+      },
+      "widgets_values": [
+        true,
+        0.5000000000000001,
+        1
+      ]
+    },
+    {
+      "id": 565,
+      "type": "PoseRendererNode",
+      "pos": [
+        1610,
+        2450
+      ],
+      "size": [
+        315,
+        202
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "link": 1093
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1092
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "westNeighbor_ComfyUI-ultimate-openpose-editor",
+        "ver": "4cfb549344eb2c6f893b364da88d690c5414d3a2",
+        "widget_ue_connectable": {},
+        "Node name for S&R": "PoseRendererNode"
+      },
+      "widgets_values": [
+        true,
+        true,
+        true,
+        -1,
+        4,
+        3,
+        2
+      ]
+    },
+    {
+      "id": 561,
+      "type": "AppendageEditorNode",
+      "pos": [
+        1090,
+        2430
+      ],
+      "size": [
+        456,
+        226
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "link": 1085
+        },
+        {
+          "name": "scale",
+          "shape": 7,
+          "type": "FLOAT",
+          "widget": {
+            "name": "scale"
+          },
+          "link": 1090
+        }
+      ],
+      "outputs": [
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "links": [
+            1093
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "westNeighbor_ComfyUI-ultimate-openpose-editor",
+        "ver": "ea50244cd95102872209f60087ed49c80e750ff8",
+        "widget_ue_connectable": {},
+        "Node name for S&R": "AppendageEditorNode"
+      },
+      "widgets_values": [
+        "torso",
+        0.6600000000000001,
+        0,
+        0,
+        0,
+        false,
+        -1,
+        "loop"
+      ]
+    },
+    {
+      "id": 559,
+      "type": "Note",
+      "pos": [
+        -1086.4820556640625,
+        1180.427734375
+      ],
+      "size": [
+        362.96533203125,
+        155.5653076171875
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "Chain any number of the appendage editors together, then render with the pose renderer node."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 560,
+      "type": "AppendageEditorNode",
+      "pos": [
+        570,
+        2430
+      ],
+      "size": [
+        456,
+        226
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "link": 1086
+        },
+        {
+          "name": "scale",
+          "shape": 7,
+          "type": "FLOAT",
+          "widget": {
+            "name": "scale"
+          },
+          "link": 1089
+        }
+      ],
+      "outputs": [
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "links": [
+            1085
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "westNeighbor_ComfyUI-ultimate-openpose-editor",
+        "ver": "ea50244cd95102872209f60087ed49c80e750ff8",
+        "widget_ue_connectable": {},
+        "Node name for S&R": "AppendageEditorNode"
+      },
+      "widgets_values": [
+        "shoulders",
+        0.6300000000000001,
+        0,
+        0,
+        0,
+        false,
+        -1,
+        "loop"
+      ]
+    },
+    {
+      "id": 562,
+      "type": "DrawableFeatureNode",
+      "pos": [
+        -1188.8538818359375,
+        2666.18310546875
+      ],
+      "size": [
+        1050,
+        800
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "FEATURE",
+          "type": "FEATURE",
+          "links": [
+            1087,
+            1088
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_ryanontheinside",
+        "ver": "5907a3591a2feb5531d533194b6c26ead84ce835",
+        "widget_ue_connectable": {},
+        "Node name for S&R": "DrawableFeatureNode"
+      },
+      "widgets_values": [
+        "drawn",
+        30,
+        30,
+        512,
+        512,
+        0,
+        1,
+        "linear",
+        0,
+        "[[0,0.00197697778680872],[12,0.6067085132724491],[17,0.549718180796861],[21,0.8061749426494923],[26,0.796676465332732],[29,0.9993090183870311]]",
+        "selected_template",
+        1,
+        "load",
+        "clear"
+      ],
+      "points": [
+        [
+          0,
+          0.00197697778680872
+        ],
+        [
+          12,
+          0.6067085132724491
+        ],
+        [
+          17,
+          0.549718180796861
+        ],
+        [
+          21,
+          0.8061749426494923
+        ],
+        [
+          26,
+          0.796676465332732
+        ],
+        [
+          29,
+          0.9993090183870311
+        ]
+      ]
+    },
+    {
+      "id": 567,
+      "type": "Note",
+      "pos": [
+        -1087.937255859375,
+        2311.41943359375
+      ],
+      "size": [
+        406.4625549316406,
+        253.2763671875
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "You can also schedule the parameters using features. We still have a single image as input, but 30 frames in the feature, so the number of images is increased (according to list_mismatch_behavior). Instead of a single image, a video of poses can be used if so desired. \n\nThis is a drawable feature below, but there are many feature sources including but not limited to \n\nAudio\nMIDI\nDepth\nColor\nProximity\nTime\nText \nArea\nand so on"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 563,
+      "type": "FeatureToFlexFloatParam",
+      "pos": [
+        20,
+        2490
+      ],
+      "size": [
+        330.15570068359375,
+        109.04576110839844
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "feature",
+          "type": "FEATURE",
+          "link": 1087
+        }
+      ],
+      "outputs": [
+        {
+          "name": "PARAMETER",
+          "type": "FLOAT",
+          "links": [
+            1089
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_ryanontheinside",
+        "ver": "5907a3591a2feb5531d533194b6c26ead84ce835",
+        "widget_ue_connectable": {},
+        "Node name for S&R": "FeatureToFlexFloatParam"
+      },
+      "widgets_values": [
+        false,
+        0.6000000000000001,
+        3.3600000000000008
+      ]
+    },
+    {
+      "id": 566,
+      "type": "PreviewImage",
+      "pos": [
+        1983.6669921875,
+        2444.78759765625
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 1092
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.30",
+        "widget_ue_connectable": {},
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    }
+  ],
+  "links": [
+    [
+      1014,
+      518,
+      0,
+      516,
+      0,
+      "IMAGE"
+    ],
+    [
+      1019,
+      521,
+      0,
+      524,
+      0,
+      "IMAGE"
+    ],
+    [
+      1078,
+      516,
+      1,
+      556,
+      0,
+      "POSE_KEYPOINT"
+    ],
+    [
+      1080,
+      556,
+      0,
+      557,
+      0,
+      "POSE_KEYPOINT"
+    ],
+    [
+      1082,
+      557,
+      0,
+      558,
+      0,
+      "POSE_KEYPOINT"
+    ],
+    [
+      1084,
+      558,
+      0,
+      521,
+      0,
+      "POSE_KEYPOINT"
+    ],
+    [
+      1085,
+      560,
+      0,
+      561,
+      0,
+      "POSE_KEYPOINT"
+    ],
+    [
+      1086,
+      516,
+      1,
+      560,
+      0,
+      "POSE_KEYPOINT"
+    ],
+    [
+      1087,
+      562,
+      0,
+      563,
+      0,
+      "FEATURE"
+    ],
+    [
+      1088,
+      562,
+      0,
+      564,
+      0,
+      "FEATURE"
+    ],
+    [
+      1089,
+      563,
+      0,
+      560,
+      1,
+      "FLOAT"
+    ],
+    [
+      1090,
+      564,
+      0,
+      561,
+      1,
+      "FLOAT"
+    ],
+    [
+      1092,
+      565,
+      0,
+      566,
+      0,
+      "IMAGE"
+    ],
+    [
+      1093,
+      561,
+      0,
+      565,
+      0,
+      "POSE_KEYPOINT"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "Single image",
+      "bounding": [
+        -1244.7318115234375,
+        998.99267578125,
+        3810.3720703125,
+        943.616943359375
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "Multi image",
+      "bounding": [
+        -1244.4027099609375,
+        2165.394775390625,
+        3705.696533203125,
+        1379.8316650390625
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.25937424601001946,
+      "offset": [
+        2334.3305516827477,
+        -871.2916448549256
+      ]
+    },
+    "node_versions": {
+      "comfy-core": "0.3.15",
+      "ComfyUI-VideoHelperSuite": "8629188458dc6cb832f871ece3bd273507e8a766",
+      "ComfyUI-Custom-Scripts": "a53ef9b617ed1331640d7a2cd97644995908dc00",
+      "ComfyUI_Comfyroll_CustomNodes": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+      "ComfyUI-KJNodes": "86b5453a5ca9ecb883eedc9d0a96bf942b9ca73e",
+      "comfyui_ttp_toolset": "6dd3f3566ce0925b71e9cdb54243119685ccbc10",
+      "was-node-suite-comfyui": "3ed45af34a14551dc28cb3127235cc7197d4633f",
+      "ComfyUI-Frame-Interpolation": "c336f7184cb1ac1243381e725fea1ad2c0a10c09",
+      "comfyui-easy-use": "123917da9adec0d2b0b5f817deefb9ac3ed464f1",
+      "ComfyLiterals": "bdddb08ca82d90d75d97b1d437a652e0284a32ac",
+      "ComfyUI-Image-Filters": "0ff33fe29f7be072ad5d2cd89efa18fed82957fe",
+      "ComfyUI_essentials": "33ff89fd354d8ec3ab6affb605a79a931b445d99",
+      "ComfyUI-Impact-Pack": "1ae7cae2df8cca06027edfa3a24512671239d6c4",
+      "comfyui-detail-daemon": "90e703d3d3f979438471c646a5d030840a2caac3",
+      "comfyui-reactor-node": "a43075813dbd17de9c51c9fc7ea768eaf1681d89",
+      "ComfyUI-HunyuanVideoMultiLora": "7e3e3444d4e34557a24b3e0c502c94fe556237e4",
+      "ComfyUI-AutomaticCFG": "2e395317b65c05a97a0ef566c4a8c7969305dafa",
+      "ComfyUI_UltimateSDUpscale": "ff3fdfeee03de46d4462211cffd165d27155e858",
+      "ComfyUI-DepthAnythingV2": "003d7b44bafd3a8a4c3693a9ca3ddcd72f4883ab",
+      "comfyui-various": "36454f91606bbff4fc36d90234981ca4a47e2695",
+      "ComfyUI_SLK_joy_caption_two": "667751cab945bd8e9fb0be4d557d47e36821350a",
+      "comfyui-ollama": "cfa314d36efbb2344ba22a76256200016ad9570a",
+      "ComfyUI-Florence2": "90b012e922f8bb0482bcd2ae24cdc191ec12a11f",
+      "save-image-extended-comfyui": "5f104fddfc8281d9fd85d03e63c5f70454db6701"
+    },
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true,
+    "ue_links": [],
+    "links_added_by_ue": [],
+    "frontendVersion": "1.17.11"
+  },
+  "version": 0.4
+}

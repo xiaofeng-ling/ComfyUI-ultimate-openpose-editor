@@ -52,10 +52,6 @@ class AppendageEditorNode:
                     "default": False,
                     "tooltip": "If true, scales in both directions from pivot. If false, only scales away from body to prevent cannibalizing adjacent parts."
                 }),
-                "length_scale": ("BOOLEAN", {
-                    "default": False,
-                    "tooltip": "If true, scales the total length of the appendage while keeping the attachment point fixed. Overrides bidirectional_scale."
-                }),
                 "person_index": ("INT", {
                     "default": -1,
                     "min": -1,
@@ -71,7 +67,7 @@ class AppendageEditorNode:
     FUNCTION = "edit_appendage"
     CATEGORY = "ultimate-openpose"
 
-    def edit_appendage(self, POSE_KEYPOINT, appendage_type, scale=1.0, x_offset=0.0, y_offset=0.0, rotation=0.0, bidirectional_scale=False, length_scale=False, person_index=-1, list_mismatch_behavior="loop"):
+    def edit_appendage(self, POSE_KEYPOINT, appendage_type, scale=1.0, x_offset=0.0, y_offset=0.0, rotation=0.0, bidirectional_scale=False, person_index=-1, list_mismatch_behavior="loop"):
         if POSE_KEYPOINT is None:
             return (None,)
         
@@ -118,15 +114,15 @@ class AppendageEditorNode:
                     person = current_frame['people'][person_idx]
                     
                     if appendage_type in ["left_hand", "right_hand"]:
-                        self._edit_hand_appendage(person, appendage_type, current_scale, current_x_offset, current_y_offset, current_rotation, bidirectional_scale, length_scale)
+                        self._edit_hand_appendage(person, appendage_type, current_scale, current_x_offset, current_y_offset, current_rotation, bidirectional_scale)
                     else:
-                        self._edit_body_appendage(person, appendage_type, current_scale, current_x_offset, current_y_offset, current_rotation, bidirectional_scale, length_scale)
+                        self._edit_body_appendage(person, appendage_type, current_scale, current_x_offset, current_y_offset, current_rotation, bidirectional_scale)
             
             output_pose_data.append(current_frame)
         
         return (output_pose_data if isinstance(POSE_KEYPOINT, list) else output_pose_data[0],)
     
-    def _edit_hand_appendage(self, person, appendage_type, scale_factor, x_offset, y_offset, rotation, bidirectional_scale, length_scale):
+    def _edit_hand_appendage(self, person, appendage_type, scale_factor, x_offset, y_offset, rotation, bidirectional_scale):
         """Edit hand appendages using hand keypoints."""
         keypoint_field = "hand_left_keypoints_2d" if appendage_type == "left_hand" else "hand_right_keypoints_2d"
         
@@ -145,10 +141,10 @@ class AppendageEditorNode:
                 return
         
         # Apply transformations
-        new_keypoints = self._apply_transformations(keypoints, scale_factor, x_offset, y_offset, rotation, pivot, bidirectional_scale, length_scale)
+        new_keypoints = self._apply_transformations(keypoints, scale_factor, x_offset, y_offset, rotation, pivot, bidirectional_scale)
         person[keypoint_field] = new_keypoints
     
-    def _edit_body_appendage(self, person, appendage_type, scale_factor, x_offset, y_offset, rotation, bidirectional_scale, length_scale):
+    def _edit_body_appendage(self, person, appendage_type, scale_factor, x_offset, y_offset, rotation, bidirectional_scale):
         """Edit body appendages (arms, legs, feet) using body pose keypoints."""
         if 'pose_keypoints_2d' not in person or not person['pose_keypoints_2d']:
             return
@@ -168,44 +164,28 @@ class AppendageEditorNode:
         # Apply transformations only to the appendage keypoints
         new_keypoints = keypoints[:]
         
-        if length_scale and scale_factor != 1.0:
-            # For length scaling, we need to handle multi-segment appendages specially
-            new_keypoints = self._apply_length_scale(keypoints, appendage_indices, pivot_index, scale_factor)
-        
         for i in range(0, len(keypoints), 3):
             keypoint_idx = i // 3
             if keypoint_idx in appendage_indices and len(keypoints) > i+2:
                 x, y, conf = keypoints[i], keypoints[i+1], keypoints[i+2]
                 
                 if conf > 0:
-                    # If length scaling was applied, use the new keypoints
-                    if length_scale and scale_factor != 1.0:
-                        x, y = new_keypoints[i], new_keypoints[i+1]
-                    else:
-                        # Apply rotation
-                        if rotation != 0.0:
-                            rad = math.radians(rotation)
-                            cos_r, sin_r = math.cos(rad), math.sin(rad)
-                            rel_x, rel_y = x - pivot[0], y - pivot[1]
-                            x = rel_x * cos_r - rel_y * sin_r + pivot[0]
-                            y = rel_x * sin_r + rel_y * cos_r + pivot[1]
-                        
-                        # Apply scaling with directional control
-                        if scale_factor != 1.0:
-                            if bidirectional_scale:
-                                scaled_point = scale([x, y], scale_factor, pivot)
-                                x, y = scaled_point[0], scaled_point[1]
-                            else:
-                                # Unidirectional scaling - only scale away from body
-                                x, y = self._apply_unidirectional_scale([x, y], scale_factor, pivot, keypoint_idx, pivot_index)
-                    
-                    # Always apply rotation and offset even with length scaling
-                    if length_scale and rotation != 0.0:
+                    # Apply rotation
+                    if rotation != 0.0:
                         rad = math.radians(rotation)
                         cos_r, sin_r = math.cos(rad), math.sin(rad)
                         rel_x, rel_y = x - pivot[0], y - pivot[1]
                         x = rel_x * cos_r - rel_y * sin_r + pivot[0]
                         y = rel_x * sin_r + rel_y * cos_r + pivot[1]
+                    
+                    # Apply scaling with directional control
+                    if scale_factor != 1.0:
+                        if bidirectional_scale:
+                            scaled_point = scale([x, y], scale_factor, pivot)
+                            x, y = scaled_point[0], scaled_point[1]
+                        else:
+                            # Unidirectional scaling - only scale away from body
+                            x, y = self._apply_unidirectional_scale([x, y], scale_factor, pivot, keypoint_idx, pivot_index)
                     
                     # Apply offset
                     x += x_offset
@@ -311,7 +291,7 @@ class AppendageEditorNode:
         pivot_y = sum(p[1] for p in valid_points) / len(valid_points)
         return [pivot_x, pivot_y]
     
-    def _apply_transformations(self, keypoints, scale_factor, x_offset, y_offset, rotation, pivot, bidirectional_scale, length_scale):
+    def _apply_transformations(self, keypoints, scale_factor, x_offset, y_offset, rotation, pivot, bidirectional_scale):
         """Apply transformations to all keypoints."""
         new_keypoints = []
         for i in range(0, len(keypoints), 3):
@@ -329,94 +309,18 @@ class AppendageEditorNode:
                     
                     # Apply scaling
                     if scale_factor != 1.0:
-                        if length_scale:
-                            # Length scale - only scale the distance, keeping direction
-                            distance = math.sqrt((x - pivot[0])**2 + (y - pivot[1])**2)
-                            if distance > 0:
-                                new_distance = distance * scale_factor
-                                scale_ratio = new_distance / distance
-                                x, y = pivot[0] + (x - pivot[0]) * scale_ratio, pivot[1] + (y - pivot[1]) * scale_ratio
+                        if bidirectional_scale:
+                            scaled_point = scale([x, y], scale_factor, pivot)
+                            x, y = scaled_point[0], scaled_point[1]
                         else:
-                            if bidirectional_scale:
-                                scaled_point = scale([x, y], scale_factor, pivot)
-                                x, y = scaled_point[0], scaled_point[1]
-                            else:
-                                # For hands, use unidirectional scaling from wrist
-                                x, y = self._apply_unidirectional_scale([x, y], scale_factor, pivot, i//3, 0)
+                            # For hands, use unidirectional scaling from wrist
+                            x, y = self._apply_unidirectional_scale([x, y], scale_factor, pivot, i//3, 0)
                     
                     # Apply offset
                     x += x_offset
                     y += y_offset
                 
                 new_keypoints.extend([x, y, conf])
-        
-        return new_keypoints
-
-    def _apply_length_scale(self, keypoints, appendage_indices, pivot_index, scale_factor):
-        """Apply length scaling to multi-segment appendages."""
-        new_keypoints = keypoints[:]
-        
-        if scale_factor == 1.0:
-            return new_keypoints
-        
-        # Get valid appendage points in order
-        appendage_points = []
-        for idx in sorted(appendage_indices):
-            i = idx * 3
-            if len(keypoints) > i+2 and keypoints[i+2] > 0:
-                appendage_points.append([keypoints[i], keypoints[i+1], idx])
-        
-        if len(appendage_points) < 2:
-            return new_keypoints
-        
-        # Calculate current total length
-        total_length = 0.0
-        for i in range(1, len(appendage_points)):
-            dx = appendage_points[i][0] - appendage_points[i-1][0]
-            dy = appendage_points[i][1] - appendage_points[i-1][1]
-            total_length += math.sqrt(dx*dx + dy*dy)
-        
-        if total_length == 0:
-            return new_keypoints
-        
-        # Calculate new total length
-        new_total_length = total_length * scale_factor
-        
-        # Keep pivot point fixed and redistribute others
-        pivot_point = None
-        for point in appendage_points:
-            if point[2] == pivot_index:
-                pivot_point = point
-                break
-        
-        if pivot_point is None:
-            pivot_point = appendage_points[0]  # Use first point as pivot
-        
-        # Redistribute points along the appendage direction
-        for i, point in enumerate(appendage_points):
-            if point[2] == pivot_point[2]:
-                continue  # Keep pivot fixed
-            
-            # Calculate original distance from pivot
-            dx = point[0] - pivot_point[0]
-            dy = point[1] - pivot_point[1]
-            original_distance = math.sqrt(dx*dx + dy*dy)
-            
-            if original_distance > 0:
-                # Calculate new distance (scaled)
-                new_distance = original_distance * scale_factor
-                
-                # Calculate new position
-                direction_x = dx / original_distance
-                direction_y = dy / original_distance
-                
-                new_x = pivot_point[0] + direction_x * new_distance
-                new_y = pivot_point[1] + direction_y * new_distance
-                
-                # Update keypoints
-                idx = point[2] * 3
-                new_keypoints[idx] = new_x
-                new_keypoints[idx+1] = new_y
         
         return new_keypoints
 

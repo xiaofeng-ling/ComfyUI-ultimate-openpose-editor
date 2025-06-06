@@ -75,7 +75,7 @@ The node is very functional and rich features to fit all your needs.
 A new procedure editting node [AppendageEditorNode](https://github.com/westNeighbor/ComfyUI-ultimate-openpose-editor/pull/10) is added.
 
     <p align="center">
-      <img src="assets/appendage_node.jpg" />
+      <img src="assets/appendage_node.png" />
     </p>
 
 - **Precise body part editing** for OpenPose keypoints with granular control over:

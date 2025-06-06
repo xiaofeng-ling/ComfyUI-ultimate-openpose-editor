@@ -180,7 +180,7 @@ class AppendageEditorNode:
 
             output_pose_data.append(current_frame)
 
-        return (output_pose_data if isinstance(POSE_KEYPOINT, list) else output_pose_data[0],)
+        return (output_pose_data,)
 
     def _edit_hand_appendage(self, person, appendage_type, scale_factor, x_offset, y_offset, rotation, bidirectional_scale):
         """Edit hand appendages using hand keypoints."""

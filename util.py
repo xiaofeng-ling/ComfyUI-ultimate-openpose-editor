@@ -4,97 +4,238 @@ import numpy as np
 import matplotlib
 import cv2
 from comfy.utils import ProgressBar
+from typing import List, Dict
 
 eps = 0.01
 
-def scale(point, scale_factor, pivot):
-    return [(point[0] - pivot[0]) * scale_factor + pivot[0], (point[1] - pivot[1]) * scale_factor + pivot[1]]
+def extend_scalelist(scalelist_behavior, pose_json, hands_scale, body_scale, head_scale, overall_scale, match_scalelist_method, only_scale_pose_index) -> List[list]:
+    if pose_json.startswith('{'):
+        pose_json = '[{}]'.format(pose_json)
+    poses = json.loads(pose_json)
+    # initialize scale lists
+    hands_scalelist, body_scalelist, head_scalelist, overall_scalelist = [], [], [], []
+    num_imgs = 0
+    num_poses = 0
+    scale_values = [hands_scale, body_scale, head_scale, overall_scale]
+    scale_lists = [hands_scalelist, body_scalelist, head_scalelist, overall_scalelist]
+    for img in poses:
+        default_scale = 0.0
+        default_num_person = 1
+        if 'people' in img:
+            default_scale = 1.0
+            default_num_person = len(img['people'])
+            subscales = [default_scale]*default_num_person
+            if scalelist_behavior == 'poses':
+                for i, scales in enumerate(scale_values):
+                    if isinstance(scales, (list, tuple)):
+                        if len(scales) >= num_poses + default_num_person:
+                            if only_scale_pose_index<default_num_person and only_scale_pose_index >= -default_num_person:
+                                subscales[only_scale_pose_index] = scales[num_poses + only_scale_pose_index]
+                            else:
+                                subscales = scales[num_poses:num_poses + default_num_person]
+                        else:
+                            if match_scalelist_method == 'no extend':
+                                subscales = [default_scale]*default_num_person
+                            elif match_scalelist_method == 'loop extend':
+                                extend_scaleslist = scales*math.ceil((num_poses+default_num_person) / len(scales))
+                                if only_scale_pose_index<default_num_person and only_scale_pose_index >= -default_num_person:
+                                    subscales[only_scale_pose_index] = extend_scaleslist[num_poses + only_scale_pose_index]
+                                else:
+                                    subscales = extend_scaleslist[num_poses:num_poses + default_num_person]
+                            elif match_scalelist_method == 'clamp extend':
+                                if only_scale_pose_index<default_num_person and only_scale_pose_index >= -default_num_person:
+                                    subscales[only_scale_pose_index] = scales[-1]
+                                else:
+                                    subscales = [scales[-1]] * default_num_person
+                    else:
+                        if only_scale_pose_index<default_num_person and only_scale_pose_index >= -default_num_person:
+                            subscales[only_scale_pose_index] = scales
+                        else:
+                            subscales = [scales] * default_num_person
 
-def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size, hands_scale, body_scale, head_scale, overall_scale):
+                    scale_lists[i].append(subscales.copy())
+            else:
+                for i, scales in enumerate(scale_values):
+                    if isinstance(scales, (list, tuple)):
+                        if len(scales) >= num_imgs + 1:
+                            if only_scale_pose_index<default_num_person and only_scale_pose_index >= -default_num_person:
+                                subscales[only_scale_pose_index] = scales[num_imgs]
+                            else:
+                                subscales = scales[num_poses]*default_num_person
+                        else:
+                            if match_scalelist_method == 'no extend':
+                                subscales = [default_scale]*default_num_person
+                            elif match_scalelist_method == 'loop extend':
+                                extend_scaleslist = scales*math.ceil((num_imgs+1) / len(scales))
+                                if only_scale_pose_index<default_num_person and only_scale_pose_index >= -default_num_person:
+                                    subscales[only_scale_pose_index] = extend_scaleslist[num_imgs]
+                                else:
+                                    subscales = extend_scaleslist[num_imgs]*default_num_person
+                            elif match_scalelist_method == 'clamp extend':
+                                if only_scale_pose_index<default_num_person and only_scale_pose_index >= -default_num_person:
+                                    subscales[only_scale_pose_index] = scales[-1]
+                                else:
+                                    subscales = [scales[-1]] * default_num_person
+                    else:
+                        if only_scale_pose_index<default_num_person and only_scale_pose_index >= -default_num_person:
+                            subscales[only_scale_pose_index] = scales
+                        else:
+                            subscales = [scales] * default_num_person
+
+                    scale_lists[i].append(subscales.copy())
+
+            num_poses += default_num_person
+            num_imgs += 1
+        else:
+            # if no people in image
+            for i in range(len(scale_values)):
+                scale_lists[i].append([default_scale])
+
+    return scale_lists
+
+def pose_normalized(pose_json):
+    if pose_json.startswith('{'):
+        pose_json = '[{}]'.format(pose_json)
+    images = json.loads(pose_json)
+    for image in images:
+        if 'people' not in image:
+            continue
+        figures = image['people']
+        H = image['canvas_height']
+        W = image['canvas_width']
+        normalized = 0.0
+        for figure in figures:
+            if 'pose_keypoints_2d' in figure:
+                body = figure['pose_keypoints_2d']
+                if body:
+                    normalized = max(body)
+                    if normalized > 2.0:
+                        break
+            if 'face_keypoints_2d' in figure:
+                face = figure['face_keypoints_2d']
+                if face:
+                    normalized = max(face)
+                    if normalized > 2.0:
+                        break
+            if 'hand_left_keypoints_2d' in figure:
+                lhand = figure['hand_left_keypoints_2d']
+                if lhand:
+                    normalized = max(lhand)
+                    if normalized > 2.0:
+                        break
+            if 'hand_right_keypoints_2d' in figure:
+                rhand = figure['hand_right_keypoints_2d']
+                if rhand:
+                    normalized = max(rhand)
+                    if normalized > 2.0:
+                        break
+        if normalized > 2.0:
+            for figure in figures:
+                if 'pose_keypoints_2d' in figure:
+                    body = figure['pose_keypoints_2d']
+                    for i in range(0, len(body), 3):
+                        body[i] = body[i] / float(W)
+                        body[i+1] = body[i+1] / float(H)
+                if 'face_keypoints_2d' in figure:
+                    face = figure['face_keypoints_2d']
+                    for i in range(0, len(face), 3):
+                        face[i] = face[i] / float(W)
+                        face[i+1] = face[i+1] / float(H)
+                if 'hand_left_keypoints_2d' in figure:
+                    lhand = figure['hand_left_keypoints_2d']
+                    for i in range(0, len(lhand), 3):
+                        lhand[i] = lhand[i] / float(W)
+                        lhand[i+1] = lhand[i+1] / float(H)
+                if 'hand_right_keypoints_2d' in figure:
+                    rhand = figure['hand_right_keypoints_2d']
+                    for i in range(0, len(rhand), 3):
+                        rhand[i] = rhand[i] / float(W)
+                        rhand[i+1] = rhand[i+1] / float(H)
+    return json.dumps(images)
+
+def scale(point, scale_factor, pivot):
+    return [(point[i] - pivot[i])*scale_factor + pivot[i] for i in range(len(point))]
+
+def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size, hands_scalelist, body_scalelist, head_scalelist, overall_scalelist):
     pose_imgs = []
-    
+    pose_scaled = []
+
     if pose_json:
         if pose_json.startswith('{'):
             pose_json = '[{}]'.format(pose_json)
         images = json.loads(pose_json)
         pbar = ProgressBar(len(images))
-        for image in images:
+        for img_idx, image in enumerate(images):
             if 'people' not in image:
                 pbar.update(len(images))
                 return pose_imgs
             figures = image['people']
             H = image['canvas_height']
             W = image['canvas_width']
-            
+
             bodies = []
             candidate = []
             subset = [[]]
             faces = []
             hands = []
-            pivot = [W * 0.5, H * 0.5]
-            
-            for figure_idx, figure in enumerate(figures):
+
+            openpose_json = []
+            for pose_idx, figure in enumerate(figures):
+                body_scale = body_scalelist[img_idx][pose_idx]
+                hands_scale = hands_scalelist[img_idx][pose_idx]
+                head_scale = head_scalelist[img_idx][pose_idx]
+                overall_scale = overall_scalelist[img_idx][pose_idx]
                 body = []
                 face = []
                 lhand = []
                 rhand = []
                 if 'pose_keypoints_2d' in figure:
                     body = figure['pose_keypoints_2d']
+                    body_scaled = body.copy()
                 if 'face_keypoints_2d' in figure:
                     face = figure['face_keypoints_2d']
+                    face_scaled = face.copy()
                 if 'hand_left_keypoints_2d' in figure:
                     lhand = figure['hand_left_keypoints_2d']
+                    lhand_scaled = lhand.copy()
                 if 'hand_right_keypoints_2d' in figure:
                     rhand = figure['hand_right_keypoints_2d']
-                    
+                    rhand_scaled = rhand.copy()
+
                 face_offset = [0, 0]
                 lhand_offset = [0, 0]
                 rhand_offset = [0, 0]
 
-                lhand_pivot = [W * 0.25, H * 0.5]
-                rhand_pivot = [W * 0.75, H * 0.5]
-                face_pivot = [W * 0.5, H * 0.5]
+                overall_pivot = [0.5, 0.5]
+                lhand_pivot = [0.25, 0.5]
+                rhand_pivot = [0.75, 0.5]
+                face_pivot = [0.5, 0.5]
 
                 if body:
                     candidate_start_idx = len(candidate)
-                    
-                    index = 0
+
                     for i in range(0,len(body),3):
-                        p = body[i:i+2]
-                        confidence = body[i+2]
-                        
-                        if body_scale != 1.0:
-                            point = [(p[0] - 0.5) * body_scale + 0.5, (p[1] - 0.5) * body_scale + 0.5]
-                        else:
-                            point = p[:]
-                            
-                        candidate.append(point)
-                        index += 1
-                    
+                        p_scaled = scale(body[i:i+2], body_scale, overall_pivot)
+                        p_scaled = scale(p_scaled, overall_scale, overall_pivot)
+                        body_scaled[i:i+2] = p_scaled
+                        candidate.append(p_scaled)
+
                     figure_head_idx = candidate_start_idx
                     if figure_head_idx < len(candidate):
-                        face_offset = [candidate[figure_head_idx][0] - body[0], candidate[figure_head_idx][1] - body[1]]
-                        face_offset = [a*0.8 for a in face_offset]
-                    else:
-                        face_offset = [0, 0]
+                        factor = 0.8
+                        face_offset = [(candidate[figure_head_idx][0] - body[0])*factor, (candidate[figure_head_idx][1] - body[1])*factor]
+                        face_pivot = candidate[figure_head_idx]
 
                     wrist_left_idx = candidate_start_idx + 7
                     wrist_right_idx = candidate_start_idx + 4
-                    
+
                     if wrist_left_idx < len(candidate) and len(body) > 22:
                         lhand_offset = [candidate[wrist_left_idx][0] - body[21], candidate[wrist_left_idx][1] - body[22]]
                         lhand_pivot = candidate[wrist_left_idx]
-                    else:
-                        lhand_offset = [0, 0]
-                        
+
                     if wrist_right_idx < len(candidate) and len(body) > 13:
                         rhand_offset = [candidate[wrist_right_idx][0] - body[12], candidate[wrist_right_idx][1] - body[13]]
                         rhand_pivot = candidate[wrist_right_idx]
-                    else:
-                        rhand_offset = [0, 0]
-
-                    if figure_head_idx < len(candidate):
-                        face_pivot = candidate[figure_head_idx]
 
                     if not subset[0]:
                         subset[0].extend([candidate_start_idx+(i//3) if body[i+2]>0 else -1 for i in range(0,len(body),3)])
@@ -106,81 +247,56 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
                     f = []
                     for i in range(0,len(face),3):
                         p = face[i:i+2]
-                        confidence = face[i+2]
                         p_offset = [p[0] + face_offset[0], p[1] + face_offset[1]]
                         p_scaled = scale(p_offset, head_scale, face_pivot)
+                        p_scaled = scale(p_scaled, overall_scale, overall_pivot)
+                        face_scaled[i:i+2] = p_scaled
                         f.append(p_scaled)
                     faces.append(f)
-                    
+
                 if lhand:
                     lh = []
                     for i in range(0, len(lhand), 3):
                         p = lhand[i:i+2]
                         p_offset = [p[0] + lhand_offset[0], p[1] + lhand_offset[1]]
                         p_scaled = scale(p_offset, hands_scale, lhand_pivot)
+                        p_scaled = scale(p_scaled, overall_scale, overall_pivot)
+                        lhand_scaled[i:i+2] = p_scaled
                         lh.append(p_scaled)
                     hands.append(lh)
-                    
+
                 if rhand:
                     rh = []
                     for i in range(0, len(rhand), 3):
                         p = rhand[i:i+2]
                         p_offset = [p[0] + rhand_offset[0], p[1] + rhand_offset[1]]
                         p_scaled = scale(p_offset, hands_scale, rhand_pivot)
+                        p_scaled = scale(p_scaled, overall_scale, overall_pivot)
+                        rhand_scaled[i:i+2] = p_scaled
                         rh.append(p_scaled)
                     hands.append(rh)
+                openpose_json.append(dict(pose_keypoints_2d=body_scaled, face_keypoints_2d=face_scaled, hand_left_keypoints_2d=lhand_scaled, hand_right_keypoints_2d=rhand_scaled))
 
-            normalized_pivot = [0.5, 0.5]
-            
-            if hands:
-                hands = [[scale(lm, overall_scale, normalized_pivot) for lm in hand] for hand in hands]
-            if faces:
-                faces = [[scale(lm, overall_scale, normalized_pivot) for lm in face] for face in faces]
-            if candidate:
-                candidate = [scale(lm, overall_scale, normalized_pivot) for lm in candidate]
-
-            if candidate:
-                candidate = np.array(candidate).astype(float)
-                subset = np.array(subset)
-                max_x = np.max(candidate[...,0]) if len(candidate) > 0 else 0
-                max_y = np.max(candidate[...,1]) if len(candidate) > 0 else 0
-                normalized = max(max_x, max_y)
-                if normalized > 2.0:
-                    candidate[...,0] = np.clip(candidate[...,0] / float(W), 0, 1)
-                    candidate[...,1] = np.clip(candidate[...,1] / float(H), 0, 1)
-                    
-            if faces:
-                faces = np.array(faces).astype(float)
-                max_x = np.max(faces[...,0]) if len(faces) > 0 else 0
-                max_y = np.max(faces[...,1]) if len(faces) > 0 else 0
-                normalized = max(max_x, max_y)
-                if normalized > 2.0:
-                    faces[...,0] = np.clip(faces[...,0] / float(W), 0, 1)
-                    faces[...,1] = np.clip(faces[...,1] / float(H), 0, 1)
-                    
-            if hands:
-                hands = np.array(hands).astype(float)
-                max_x = np.max(hands[...,0]) if len(hands) > 0 else 0
-                max_y = np.max(hands[...,1]) if len(hands) > 0 else 0
-                normalized = max(max_x, max_y)
-                if normalized > 2.0:
-                    hands[...,0] = np.clip(hands[...,0] / float(W), 0, 1)
-                    hands[...,1] = np.clip(hands[...,1] / float(H), 0, 1)
-                    
             bodies = dict(candidate=candidate, subset=subset)
             pose = dict(bodies=bodies, faces=faces, hands=hands)
             pose = dict(bodies=bodies if show_body else {'candidate':[], 'subset':[]}, faces=faces if show_face else [], hands=hands if show_hands else [])
-            
+
             W_scaled = resolution_x
             if resolution_x < 64:
                 W_scaled = W
             H_scaled = int(H*(W_scaled*1.0/W))
-            
+            openpose_json = {
+                            'people': openpose_json,
+                            'canvas_height': H_scaled,
+                            'canvas_width': W_scaled,
+                            }
+
             pose_img = draw_pose(pose, H_scaled, W_scaled, pose_marker_size, face_marker_size, hand_marker_size)
             pose_imgs.append(pose_img)
+            pose_scaled.append(openpose_json)
             pbar.update(1)
 
-    return pose_imgs
+    return pose_imgs, pose_scaled
 
 def draw_pose(pose, H, W, pose_marker_size, face_marker_size, hand_marker_size):
     bodies = pose['bodies']

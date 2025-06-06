@@ -71,6 +71,27 @@ The node is very functional and rich features to fit all your needs.
 
     - Quick options to scale part or overall of the poses. You also can scale specific person(pose) by set the `only_scale_pose_index` to the one you want to scale, set a number out of the index range to scale all poses. **Note: the index is not necessary natural order (e.g. from left to right). **
 
+## New Node
+A new procedure editting node [AppendageEditorNode](https://github.com/westNeighbor/ComfyUI-ultimate-openpose-editor/pull/10) is added.
+
+    <p align="center">
+      <img src="assets/appendage_node.jpg" />
+    </p>
+
+- **Precise body part editing** for OpenPose keypoints with granular control over:
+  - Arms: `left/right_upper_arm`, `left/right_forearm`, `left/right_full_arm`
+  - Legs: `left/right_upper_leg`, `left/right_lower_leg`, `left/right_full_leg` 
+  - Hands/Feet: `left/right_hand`, `left/right_foot`
+  - Torso: `torso`, `shoulders`
+- **Transform controls**: scale, rotation, x/y offset with animation support
+- **Scaling modes**: 
+  - `bidirectional_scale=True`: scales in all directions from pivot
+  - `bidirectional_scale=False`: scales only away from body (prevents adjacent part interference)
+- **Multi-person support** with configurable person index
+- **Animation-friendly** with list parameter handling and mismatch behaviors
+
+One can chain N Appendage Editors together, and then render the final result.
+
 
 ## Credits
 - https://github.com/huchenlei/ComfyUI-openpose-editor

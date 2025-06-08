@@ -69,7 +69,8 @@ The node is very functional and rich features to fit all your needs.
       <img src="assets/editor_example_3.jpg" />
     </p>
 
-    - Quick options to scale part or overall of the poses. You also can scale specific person(pose) by set the `only_scale_pose_index` to the one you want to scale, set a number out of the index range to scale all poses. **Note: the index is not necessary natural order (e.g. from left to right). **
+    - Quick options to scale part or overall of the poses. You also can scale specific person(pose) by set the `only_scale_pose_index` to the one you want to scale, set a number out of the index range to scale all poses. 
+    ** Note: the index is not necessary natural order \(e.g. from left to right\). **
 
 ## New Node
 A new procedure editting node [AppendageEditorNode](https://github.com/westNeighbor/ComfyUI-ultimate-openpose-editor/pull/10) is added.

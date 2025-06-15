@@ -191,15 +191,23 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
                 rhand = []
                 if 'pose_keypoints_2d' in figure:
                     body = figure['pose_keypoints_2d']
+                    if body is None:
+                        body = []
                     body_scaled = body.copy()
                 if 'face_keypoints_2d' in figure:
                     face = figure['face_keypoints_2d']
+                    if face is None:
+                        face = []
                     face_scaled = face.copy()
                 if 'hand_left_keypoints_2d' in figure:
                     lhand = figure['hand_left_keypoints_2d']
+                    if lhand is None:
+                        lhand = []
                     lhand_scaled = lhand.copy()
                 if 'hand_right_keypoints_2d' in figure:
                     rhand = figure['hand_right_keypoints_2d']
+                    if rhand is None:
+                        rhand = []
                     rhand_scaled = rhand.copy()
 
                 face_offset = [0, 0]

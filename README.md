@@ -64,14 +64,12 @@ The node is very functional and rich features to fit all your needs.
     - It can output pose images, or POSE\_KEYPOINTS or the json poses. Be ware that the output priority is **POSE\_JSON > POSE\_KEYPOINT**
 
     - It integrates the render options too, so you can use it as an render node too, or check my [ultimate-openpose-render](https://github.com/westNeighbor/ComfyUI-ultimate-openpose-render) node.
-
     <p align="center">
       <img src="assets/editor_example_3.jpg" />
     </p>
 
     - Quick options to scale part or overall of the poses. You also can scale specific person(pose) by set the `only_scale_pose_index` to the one you want to scale, set a number out of the index range to scale all poses. 
     **Note: the index is not necessary natural order \(e.g. from left to right\).**
-
     <p align="center">
       <img src="assets/editor_pose_scale.png" />
     </p>

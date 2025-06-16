@@ -140,12 +140,12 @@ class AppendageEditorNode:
 
         # Normalize scale parameters to handle lists vs single floats using the original node's methods
         scale_params = [scale, x_offset, y_offset, rotation]
-        output_length = determine_output_length(scale_params, pose_count, list_mismatch_behavior)
+        output_length = self.determine_output_length(scale_params, pose_count, list_mismatch_behavior)
 
-        scale_list = normalize_scale_parameter(scale, output_length, list_mismatch_behavior)
-        x_offset_list = normalize_scale_parameter(x_offset, output_length, list_mismatch_behavior)
-        y_offset_list = normalize_scale_parameter(y_offset, output_length, list_mismatch_behavior)
-        rotation_list = normalize_scale_parameter(rotation, output_length, list_mismatch_behavior)
+        scale_list = self.normalize_scale_parameter(scale, output_length, list_mismatch_behavior)
+        x_offset_list = self.normalize_scale_parameter(x_offset, output_length, list_mismatch_behavior)
+        y_offset_list = self.normalize_scale_parameter(y_offset, output_length, list_mismatch_behavior)
+        rotation_list = self.normalize_scale_parameter(rotation, output_length, list_mismatch_behavior)
 
         # Process each frame with its corresponding parameter values
         output_pose_data = []

@@ -90,13 +90,15 @@ class OpenposeEditorNode:
                 hands_scalelist, body_scalelist, head_scalelist, overall_scalelist = extend_scalelist(
                     scalelist_behavior, POSE_PASS, hands_scale, body_scale, head_scale, overall_scale,
                     match_scalelist_method, only_scale_pose_index)
-                pose_imgs, POSE_PASS = draw_pose_json(POSE_PASS, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size, hands_scalelist, body_scalelist, head_scalelist, overall_scalelist)
+                normalized_pose_json = pose_normalized(POSE_PASS)
+                pose_imgs, POSE_PASS = draw_pose_json(normalized_pose_json, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size, hands_scalelist, body_scalelist, head_scalelist, overall_scalelist)
 
             # parse the JSON
             hands_scalelist, body_scalelist, head_scalelist, overall_scalelist = extend_scalelist(
                 scalelist_behavior, POSE_JSON, hands_scale, body_scale, head_scale, overall_scale,
                 match_scalelist_method, only_scale_pose_index)
-            pose_imgs, POSE_JSON_SCALED = draw_pose_json(POSE_JSON, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size, hands_scalelist, body_scalelist, head_scalelist, overall_scalelist)
+            normalized_pose_json = pose_normalized(POSE_JSON)
+            pose_imgs, POSE_JSON_SCALED = draw_pose_json(normalized_pose_json, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size, hands_scalelist, body_scalelist, head_scalelist, overall_scalelist)
             if pose_imgs:
                 pose_imgs_np = np.array(pose_imgs).astype(np.float32) / 255
                 return {

@@ -197,22 +197,23 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
                     body = figure['pose_keypoints_2d']
                     if body is None:
                         body = []
-                    body_scaled = body.copy()
                 if 'face_keypoints_2d' in figure:
                     face = figure['face_keypoints_2d']
                     if face is None:
                         face = []
-                    face_scaled = face.copy()
                 if 'hand_left_keypoints_2d' in figure:
                     lhand = figure['hand_left_keypoints_2d']
                     if lhand is None:
                         lhand = []
-                    lhand_scaled = lhand.copy()
                 if 'hand_right_keypoints_2d' in figure:
                     rhand = figure['hand_right_keypoints_2d']
                     if rhand is None:
                         rhand = []
-                    rhand_scaled = rhand.copy()
+
+                body_scaled = body.copy()
+                face_scaled = face.copy()
+                lhand_scaled = lhand.copy()
+                rhand_scaled = rhand.copy()
 
                 face_offset = [0, 0]
                 lhand_offset = [0, 0]
@@ -292,6 +293,7 @@ def draw_pose_json(pose_json, resolution_x, show_body, show_face, show_hands, po
             bodies = dict(candidate=candidate, subset=subset)
             pose = dict(bodies=bodies, faces=faces, hands=hands)
             pose = dict(bodies=bodies if show_body else {'candidate':[], 'subset':[]}, faces=faces if show_face else [], hands=hands if show_hands else [])
+            print(f'{pose=}')
 
             W_scaled = resolution_x
             if resolution_x < 64:
@@ -317,6 +319,8 @@ def draw_pose(pose, H, W, pose_marker_size, face_marker_size, hand_marker_size):
     candidate = bodies['candidate']
     subset = bodies['subset']
     canvas = np.zeros(shape=(H, W, 3), dtype=np.uint8)
+    print(f'{pose=}')
+    print(f'{candidate=}')
 
     if len(candidate) > 0:
         canvas = draw_bodypose(canvas, candidate, subset, pose_marker_size)

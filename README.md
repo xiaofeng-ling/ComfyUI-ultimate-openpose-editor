@@ -93,6 +93,8 @@ A new procedure editting node [AppendageEditorNode](https://github.com/westNeigh
 
 One can chain N Appendage Editors together, and then render the final result.
 
+## 🌟 Star History
+[![Star History Chart](https://api.star-history.com/svg?repos=OWNER/REPO&type=Date)](https://star-history.com/#westNeighbor/ComfyUI-ultimate-openpose-editor&Date)
 
 ## Credits
 - https://github.com/huchenlei/ComfyUI-openpose-editor

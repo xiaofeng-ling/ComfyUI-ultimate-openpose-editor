@@ -87,23 +87,18 @@ class OpenposeEditorNode:
             POSE_PASS = POSE_JSON
             if POSE_KEYPOINT is not None:
                 POSE_PASS = json.dumps(POSE_KEYPOINT,indent=4).replace("'",'"').replace('None','[]')
-                hands_scalelist, body_scalelist, head_scalelist, overall_scalelist = extend_scalelist(
-                    scalelist_behavior, POSE_PASS, hands_scale, body_scale, head_scale, overall_scale,
-                    match_scalelist_method, only_scale_pose_index)
-                normalized_pose_json = pose_normalized(POSE_PASS)
-                pose_imgs, POSE_PASS = draw_pose_json(normalized_pose_json, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size, hands_scalelist, body_scalelist, head_scalelist, overall_scalelist)
 
             # parse the JSON
             hands_scalelist, body_scalelist, head_scalelist, overall_scalelist = extend_scalelist(
-                scalelist_behavior, POSE_JSON, hands_scale, body_scale, head_scale, overall_scale,
+                scalelist_behavior, POSE_PASS, hands_scale, body_scale, head_scale, overall_scale,
                 match_scalelist_method, only_scale_pose_index)
-            normalized_pose_json = pose_normalized(POSE_JSON)
-            pose_imgs, POSE_JSON_SCALED = draw_pose_json(normalized_pose_json, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size, hands_scalelist, body_scalelist, head_scalelist, overall_scalelist)
+            normalized_pose_json = pose_normalized(POSE_PASS)
+            pose_imgs, POSE_PASS_SCALED = draw_pose_json(normalized_pose_json, resolution_x, show_body, show_face, show_hands, pose_marker_size, face_marker_size, hand_marker_size, hands_scalelist, body_scalelist, head_scalelist, overall_scalelist)
             if pose_imgs:
                 pose_imgs_np = np.array(pose_imgs).astype(np.float32) / 255
                 return {
-                    "ui": {"POSE_JSON": [json.dumps(POSE_PASS, indent=4)]},
-                    "result": (torch.from_numpy(pose_imgs_np), POSE_JSON_SCALED, json.dumps(POSE_JSON_SCALED,indent=4))
+                    "ui": {"POSE_JSON": [json.dumps(POSE_PASS_SCALED, indent=4)]},
+                    "result": (torch.from_numpy(pose_imgs_np), POSE_PASS_SCALED, json.dumps(POSE_PASS_SCALED,indent=4))
                 }
         elif POSE_KEYPOINT is not None:
             POSE_JSON = json.dumps(POSE_KEYPOINT,indent=4).replace("'",'"').replace('None','[]')

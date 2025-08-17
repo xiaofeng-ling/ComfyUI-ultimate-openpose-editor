@@ -48,7 +48,7 @@ If you like the project, please give me a star! ⭐
     <p align="center">
       <img src="assets/editor_example_2.png" />
     </p>
-- `ESC` key to close, need to focus on the window first by clicking on the outer area of the editor window.
+- `SHIFT`+`ESC` key to close, need to focus on the window first by clicking on the outer area of the editor window.
 
 ## Features
 The node is very functional and rich features to fit all your needs.
